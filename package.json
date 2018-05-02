@@ -1,0 +1,84 @@
+{
+  "name": "mastershina-image-panel",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "./",
+  "main": "public/electron.js",
+  "description": "Панель управления сайтами мастершины",
+  "author": {
+    "name": "Nikonov Vitaliy",
+    "email": "nikonov.vitas@gmail.com",
+    "url": "https://mastershina.kz/"
+  },
+  "scripts": {
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "electron-dev": "export ELECTRON_START_URL=http://localhost:3001 && electron .",
+    "build-css": "node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/",
+    "watch-css": "npm run build-css && node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/ --watch --recursive",
+    "start-js": "react-scripts start",
+    "react": "npm-run-all -p watch-css start-js",
+    "build": "npm run build-css && react-scripts build",
+    "start": "ELECTRON_START_URL=false env NODE_ENV=production && electron .",
+    "dist": "electron-builder",
+    "package-cash-linux": "electron-builder --linux",
+    "package-cash-windows": "electron-builder --windows"
+  },
+  "dependencies": {
+    "axios": "^0.17.1",
+    "chartist": "^0.10.1",
+    "create-react-app": "^1.3.3",
+    "draft-js": "^0.10.5",
+    "draftjs-to-html": "^0.8.3",
+    "google-maps-react": "^1.1.0",
+    "node-sass-chokidar": "0.0.3",
+    "npm-run-all": "^4.1.1",
+    "react": "^16.2.0",
+    "react-bootstrap": "^0.31.1",
+    "react-chartist": "^0.13.0",
+    "react-dom": "^16.2.0",
+    "react-draft-wysiwyg": "^1.12.11",
+    "react-notification-system": "^0.2.15",
+    "react-redux": "^5.0.6",
+    "react-router": "^4.1.2",
+    "react-router-dom": "^4.1.2",
+    "react-scripts": "1.0.10",
+    "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0",
+    "webpack": "^3.11.0"
+  },
+  "build": {
+    "appId": "kz.mastershina.panel",
+    "productName": "MasterShina Admin Panel",
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Office",
+      "icon": "resources/icons"
+    },
+    "directories": {
+      "buildResources": "resources",
+      "output": "release"
+    },
+    "files": [
+      "build/",
+      "node_modules/",
+      "public/",
+      "src/electron-start.js",
+      "package.json",
+      "app-update.yml"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^1.8.2",
+    "electron-builder": "^20.5.1",
+    "react-scripts": "1.1.1"
+  }
+}
