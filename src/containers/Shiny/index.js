@@ -5,7 +5,7 @@ import Shiny from '../../views/Shiny';
 const {
     images: { pushEdit },
     handlers: { setError },
-    shiny: { fetchNoImagesList, fetchNewNoImagesList },
+    shiny: { fetchSearch, startLoad, fetchNoImagesList, fetchNewNoImagesList },
 } = actions;
 
 export default connect(
@@ -15,8 +15,14 @@ export default connect(
     }),
     dispatch => ({
         getImageList: (token) => {
-            dispatch(fetchNoImagesList(token));
-            dispatch(fetchNewNoImagesList(token))
+            // dispatch(fetchNoImagesList(token));
+            // dispatch(fetchNewNoImagesList(token))
+        },
+        startLoad: () => {
+            dispatch(startLoad());
+        },
+        fetchSearch: (token,page=1,search={},sort='',limit=10) => {
+            dispatch(fetchSearch(token,page,search,sort,limit));
         },
         pushEdit: (edit) => dispatch(pushEdit(edit)),
         // selectedFileImage: (file, imagePreviewUrl) => dispatch(selectedFileImage(file, imagePreviewUrl)),

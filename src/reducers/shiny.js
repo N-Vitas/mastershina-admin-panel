@@ -1,8 +1,13 @@
-import { SHINY_LOAD_LIST, SHINY_NEW_LOAD_LIST } from '../actions/shiny';
+import { SHINY_LOAD_LIST, SHINY_NEW_LOAD_LIST,SHINY_SEARCH_LIST,SHINY_START_LOAD } from '../actions/shiny';
 
 const initialState = {
     list: [],
     newsite: [],
+    total: 0,
+    page: 1, 
+    sort: '-tire_name_new', 
+    limit: 10,
+    loading: true,
 };
 const shiny = (state = initialState, action) => {
     switch(action.type) {
@@ -16,6 +21,20 @@ const shiny = (state = initialState, action) => {
                 ...state,
                 newsite: action.list,
             };
+
+        case SHINY_START_LOAD:
+            return {...state,
+                loading: true,
+            }
+        case SHINY_SEARCH_LIST:
+            return {...state, 
+                list: action.list,
+                total: action.total,
+                page: action.page,
+                sort: action.sort,
+                limit: action.count,
+                loading: false,
+            }
         default:
             return state;
     }
