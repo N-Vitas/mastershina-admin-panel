@@ -3,6 +3,7 @@ import { SHINY_LOAD_LIST, SHINY_NEW_LOAD_LIST,SHINY_SEARCH_LIST,SHINY_START_LOAD
 const initialState = {
     list: [],
     newsite: [],
+    search:{},
     total: 0,
     page: 1, 
     sort: '-tire_name_new', 
@@ -31,6 +32,7 @@ const shiny = (state = initialState, action) => {
                 list: action.list,
                 total: action.total,
                 page: action.page,
+                search: action.search,
                 sort: action.sort,
                 limit: action.count,
                 loading: false,

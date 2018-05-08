@@ -45,7 +45,7 @@ class Sidebar extends Component{
                     <ul className="nav">
                         {
                             appRoutes.map((prop,key) => {
-                                if(!prop.redirect && prop.hidden != true)
+                                if(!prop.redirect && prop.hidden !== true)
                                     return (
                                         <li className={prop.upgrade ? "active active-pro":this.activeRoute(prop.path)} key={key}>
                                             <NavLink to={prop.path} className="nav-link" activeClassName="active">

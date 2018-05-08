@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ChartistGraph from 'react-chartist';
+// import ChartistGraph from 'react-chartist';
 import { Grid, Row, Col } from 'react-bootstrap';
 import {StatsCard} from '../../components/StatsCard/StatsCard.jsx';
 

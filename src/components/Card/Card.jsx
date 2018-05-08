@@ -8,7 +8,7 @@ export class Card extends Component{
                 <div className={"header"
                     + (this.props.hCenter ? " text-center":"")}>
                     <h4 className="title">{this.props.title}</h4>
-                    <p className="category">{this.props.category}</p>
+                    <div className="category">{this.props.category}</div>
                 </div>
                 <div className={"content"
                     + (this.props.ctAllIcons ? " all-icons":"")

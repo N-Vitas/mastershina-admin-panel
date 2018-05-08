@@ -5,7 +5,7 @@ import Shiny from '../../views/Shiny';
 const {
     images: { pushEdit },
     handlers: { setError },
-    shiny: { fetchSearch, startLoad, fetchNoImagesList, fetchNewNoImagesList },
+    shiny: { fetchSearch, startLoad },
 } = actions;
 
 export default connect(

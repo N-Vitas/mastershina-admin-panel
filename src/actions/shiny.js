@@ -21,7 +21,7 @@ export const fetchSearch = (token,page=1,search={},sort='',limit=10) => {
                     shiny.setAttributes(params);
                     list.push(shiny)
                 });
-                dispatch({ type:SHINY_SEARCH_LIST, list, count: r.data.count, total: r.data.total, page, sort });
+                dispatch({ type:SHINY_SEARCH_LIST, list, count: r.data.count, total: r.data.total, search, page, sort });
                 dispatch(setSuccess("Информация шин от старого сайта успешно загружена."));
             }else{
                 dispatch(setError("Произошла ошибка загрузки шин от старого сайта."));

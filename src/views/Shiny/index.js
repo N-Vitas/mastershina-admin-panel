@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { Grid, Row, Col, Table, Radio } from 'react-bootstrap';
-import config from '../../config';
+import { Grid, Row, Col, Table, MenuItem, DropdownButton, Button, FormGroup, FormControl, InputGroup } from 'react-bootstrap';
+// // import config from '../../config';
 import Card from '../../components/Card/Card.jsx';
 import Loading from '../../components/Loading/Loading';
 import Pitstop from '../../models/pitstop';
-import { Checkbox, Table as MatTable } from "material-ui";
-// import { Edit, Close, Check } from "material-ui/icons";
+import { Checkbox, Table as MatTable, Tooltip,IconButton } from "material-ui";
 
 class Shiny extends Component {
 
@@ -18,11 +17,12 @@ class Shiny extends Component {
         labels.price_old = Pitstop.attributeLabels().price_old;
         this.state = {
             labels,
+            search: '',
+            openAttr: false,
             activeLabes: [
                 {key: 'photo', value: true },
                 {key: 'code', value: true },
                 {key: 'name_new', value: true },
-                {key: 'url', value: true },  
                 {key: 'brand', value: false },
                 {key: 'load', value: false },
                 {key: 'speed', value: false },
@@ -37,46 +37,49 @@ class Shiny extends Component {
                 {key: 'kol', value: false },
                 {key: 'desc', value: false },                
             ],
+            activeSearch: [
+                {key: 'tire_brand', value: false, title: 'По бренду'},
+                {key: '1c_code', value: false, title: 'По коду срм'},
+                {key: 'tire_name_new', value: true, title: 'По названию'},
+                {key: 'tire_load', value: false, title: 'По Индексу нагрузки'},
+                {key: 'tire_speed', value: false, title: 'По индексу скорости'},
+                {key: 'tire_time', value: false, title: 'По Сезонности'},
+                {key: 'tire_ts', value: false, title: 'По типу кузова'},
+                {key: 'tire_width', value: false, title: 'По Ширине/Высоте/Диаметру'},
+                {key: 'tire_price', value: false, title: 'По цене'},
+                {key: 'tire_price1', value: false, title: 'По старой цене'},
+                {key: 'tire_kol', value: false, title: 'По количеству'},
+                {key: 'tire_desc', value: false, title: 'По описанию'},
+            ],
         }
+        this.timer = null;
     }
 
     componentWillMount(){
-        const { getImageList, fetchSearch, token, shiny:{page,sort,limit} } = this.props;
+        const { fetchSearch, token, shiny:{page,sort,limit} } = this.props;
         fetchSearch(token,page,{},sort,limit);
     }
-    lineClick(prop,key){
-        const { shiny:{ list, newsite, page }, pushEdit, fetchSearch, token } = this.props;
-        console.log(page)
-        fetchSearch(token,(page+1));        
+    lineClick(prop){
+        const { pushEdit } = this.props;
+        pushEdit(prop);        
     }
     itemClick(prop,key){        
         console.log("itemClick",prop,key)
     }
-    prediction(){
-        const { shiny } = this.props;
-        let array = [];
-        if( shiny.list.length > 0){
-            shiny.list.forEach((model) => {
-                if(model.getShiny().code){
-                    array.push([model.getShiny().code, model.getShiny().name_new ]);
-                }
-            });
-        }
-        return array;
-    }
          
     navigation(page){
-        const { fetchSearch, token, shiny:{ sort, limit, total } } = this.props;
-        if(page === 0 || page !== 1 && page > Math.ceil(total/limit)+1) {
+        const { fetchSearch, token, shiny:{ sort, limit, search, total } } = this.props;
+        console.log(search);
+        if(page === 0 || page > Math.ceil(total/limit)+1) {
             return
         }
-        fetchSearch(token,page,{},sort,limit);
+        fetchSearch(token,page,search,sort,limit);
     }
     getSorting(name){
-        const { fetchSearch, token, shiny:{ sort, page, limit } } = this.props;
+        const { fetchSearch, token, shiny:{ sort, page, search, limit } } = this.props;
         const p = Pitstop.getAttribute(name);
         if(sort.indexOf('-'+p) !== -1){
-            fetchSearch(token,page,{},p,limit);
+            fetchSearch(token,page,search,p,limit);
             return;
         }
         if(sort.indexOf(p) !== -1){
@@ -86,51 +89,24 @@ class Shiny extends Component {
         fetchSearch(token,page,{},p,limit);
     }
 
-    compareObjects(a,b) {
-        if (a.last_nom < b.last_nom)
-            return -1;
-        if (a.last_nom > b.last_nom)
-            return 1;
-        return 0;
-    }
-    compareArray(a,b,key,sorting){
-        if (!sorting && a[key] > b[key]) return -1;
-        if (!sorting && a[key] < b[key]) return 1;
-        if (sorting && a[key] < b[key]) return -1;
-        if (sorting && a[key] > b[key]) return 1;
-        return 0;
-    }
-
     handleSearch(value){
-        const { page, limit } = this.state;
-        const t = this;
-        if(t.timer != null){
-            clearTimeout(t.timer);
-        }
-        t.timer = setTimeout(()=>{
-            const v = this.filterSearch(value);
-            const pages = Math.ceil(v.length/limit);
-            const start = (page-1)*limit;
-            const stop  = start + limit;
-            t.setState({search:value, page:page, pages:pages, body:v.slice(start,stop)});            
-        },250);
+        this.setState({search:value,openAttr:false});
     }
-    filterSearch(search){
-        const { tdArray } = this.props   
-        let newBody = tdArray;
-        if(search.length > 0){
-            newBody = tdArray.filter((item)=>{
-                for(let i in item){
-                    if(typeof item[i] === 'string'){
-                        if(item,search,item[i].toLowerCase().indexOf(search.toLowerCase()) !== -1){ return true; }
-                    }
-                }
-                return false;
-            })
-
-            
+    onKeyDown(code){
+        if(code === 13){
+            this.submitSearch();        
         }
-        return newBody;
+    }
+    submitSearch(){
+        const { activeSearch, search } = this.state;
+        const { fetchSearch, token, shiny:{ sort, page, limit } } = this.props;
+        let sendsearch = {};
+        activeSearch.forEach((item,i)=>{
+            if(item.value){
+                sendsearch[item.key] = search;
+            }
+        });
+        fetchSearch(token,page,sendsearch,sort,limit);
     }
     renderNavigation(){
         const { shiny: { page, limit, total }} = this.props;
@@ -151,7 +127,6 @@ class Shiny extends Component {
     }
     sortingClass(key){
         const { shiny: { sort } } = this.props;
-        console.log(key,sort);
         if(sort.indexOf(key) !== -1){
             if(sort.indexOf('-') !== -1){
                 return "fa fa-sort-down";
@@ -163,16 +138,66 @@ class Shiny extends Component {
     togleLabel(label){
         let activeLabes = this.state.activeLabes;
         activeLabes.forEach((item,i)=>{
-            if(item == label){
+            if(item === label){
                 activeLabes[i] = {...item,value:!item.value}
             }
         })
         this.setState({activeLabes});
     }
+    togleSearch(label){
+        let activeSearch = this.state.activeSearch;
+        activeSearch.forEach((item,i)=>{
+            if(item === label){
+                activeSearch[i] = {...item,value:!item.value}
+                return;
+            }
+            activeSearch[i] = {...item,value:false}
+        })
+        this.setState({activeSearch});
+    }
+    renderSearch(){
+        const { activeSearch, openAttr, search } = this.state;
+        return (
+            <div className="input-group table-search">
+                <FormGroup>
+                    <InputGroup>
+                    <InputGroup.Button>
+                        <Button><i className="text-success fa fa-plus"></i>&nbsp;</Button>
+                    </InputGroup.Button>
+                    <FormControl placeholder="Поиск" type="text" onKeyDown={(e)=>this.onKeyDown(e.keyCode)} value={search} onChange={(e)=>this.handleSearch(e.target.value)} />
+                    <InputGroup.Button>
+                        <DropdownButton
+                        title="&nbsp;"
+                        open={openAttr}
+                        onClick={()=>this.setState({openAttr:!openAttr})}
+                        onToggle={()=>{}}
+                        id={`dropdown-basic-search`}
+                        >
+                        {
+                            activeSearch.map((item,key)=>{
+                                return (
+                                    <MenuItem key={`search-label-${key}`} onClick={()=>this.togleSearch(item)} eventKey={`search-label-${key}`}>
+                                            <Checkbox
+                                                checked={item.value}
+                                                onClick={() => this.togleLabel(item)}
+                                            />{item.title}
+                                    </MenuItem>
+                                );
+                            })
+                        }
+                            <MenuItem divider />
+                            <MenuItem><Button block bsStyle="success" onClick={()=>this.submitSearch()}>Поиск</Button></MenuItem>
+                        </DropdownButton>
+                        <Button onClick={()=>this.submitSearch()}><i className="fa fa-search"></i>&nbsp;</Button>
+                    </InputGroup.Button>
+                    </InputGroup>
+                </FormGroup>
+            </div>
+        );
+    }
     render() {
-        const { shiny: { list, newsite, page, loading }} = this.props;
+        const { shiny: { list, loading }} = this.props;
         const { labels, activeLabes } = this.state;
-        const dataset = this.prediction();
         return (
             <div className="content">
                 <Grid fluid>
@@ -180,7 +205,7 @@ class Shiny extends Component {
                         <Col md={9}>                
                             <Card
                                 title="Список шин"
-                                category={<input className="form-control table-search" placeholder="Поиск" type="text" onChange={(e)=>this.handleSearch(e.target.value)}/>}
+                                category={this.renderSearch()}
                                 ctTableFullWidth ctTableResponsive
                                 content={
                                     <div className="over-x">
@@ -195,6 +220,7 @@ class Shiny extends Component {
                                                             return null;
                                                         })
                                                     }
+                                                    <td colspan={3}></td>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -207,7 +233,7 @@ class Shiny extends Component {
                                                                         activeLabes.map((label,key)=>{
                                                                             if(label.value){
                                                                                 if (label.key === 'photo'){
-                                                                                    if(item[label.key] == '')
+                                                                                    if(item[label.key] === '')
                                                                                         return <td key={`data${key}`}><img className="table-preview-mini" src={`https://mastershina.kz/upload/images/none_pic.jpg`} /></td>;
                                                                                     return <td key={`data${key}`}><img className="table-preview-mini" src={`https://mastershina.kz/upload/images/${item[label.key]}`} /></td>;
                                                                                 }
@@ -223,6 +249,18 @@ class Shiny extends Component {
                                                                             return null;
                                                                         })
                                                                     }
+                                                                    <td>
+                                                                        <IconButton target="_blank" href={`https://mastershina.kz/produkt/${pit.url}`}><i className="text-info fa fa-eye"></i>
+                                                                        </IconButton>
+                                                                    </td>
+                                                                    <td>
+                                                                        <IconButton onClick={()=>this.lineClick(pit)}><i className="text-info fa fa-edit"></i>
+                                                                        </IconButton>
+                                                                    </td>
+                                                                    <td>
+                                                                        <IconButton><i className="text-danger fa fa-close"></i>
+                                                                        </IconButton>
+                                                                    </td>
                                                                 </tr>
                                                             );
                                                         })
