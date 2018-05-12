@@ -2,6 +2,7 @@ import Dashboard from '../containers/Dashboard/Dashboard';
 // import UserProfile from '../views/UserProfile/UserProfile';
 // import TableList from '../views/TableList/TableList';
 import Shiny from '../containers/Shiny';
+import ShinyEdit from '../containers/Shiny/edit';
 import Disc from '../containers/Disc';
 import Oil from '../containers/Oil';
 import Battery from '../containers/Battery';
@@ -16,6 +17,7 @@ const appRoutes = [
     { path: "/dashboard", name: "Статистика", icon: "pe-7s-graph", component: Dashboard },
     { path: "/images", name: "Картинки", icon: "pe-7s-note2", component: ImagesSite },
     { path: "/image-edit", hidden:true, name: "Картинки", icon: "pe-7s-note2", component: ImageEdit },
+    { path: "/shiny-edit", hidden:true, name: "Редактирование шин", icon: "pe-7s-note2", component: ShinyEdit },
     { path: "/shiny", name: "Шины", icon: "pe-7s-note2", component: Shiny },
     { path: "/disc", name: "Диски", icon: "pe-7s-note2", component: Disc },
     { path: "/oil", name: "Масла", icon: "pe-7s-note2", component: Oil },

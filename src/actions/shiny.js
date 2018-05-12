@@ -6,8 +6,26 @@ export const SHINY_LOAD_LIST = 'SHINY_LOAD_LIST';
 export const SHINY_NEW_LOAD_LIST = 'SHINY_NEW_LOAD_LIST';
 export const SHINY_SEARCH_LIST = 'SHINY_SEARCH_LIST';
 export const SHINY_START_LOAD = 'SHINY_START_LOAD';
+export const SHINY_STOP_LOAD = 'SHINY_STOP_LOAD';
+export const SHINY_SELECT_LOAD = 'SHINY_SELECT_LOAD';
 
 export const startLoad = () => ({ type: SHINY_START_LOAD });
+export const stopLoad = () => ({ type: SHINY_STOP_LOAD });
+export const pushEdit = (model) => ({ type: SHINY_SELECT_LOAD, model});
+
+export const deleteItem = (token,model,callback) => {
+    return (dispatch) => {
+        dispatch(startLoad());
+        queryApi(token).post('pitstop/delete-all/'+model.id)
+        .then((r) => {
+            callback(r);
+            dispatch(stopLoad())
+        }).catch((err)=>{
+            dispatch(stopLoad())
+            dispatch(setError("Не возможно сделать запрос. Возможно отсутствует интернет!"));
+        });
+    }
+}
 
 export const fetchSearch = (token,page=1,search={},sort='',limit=10) => {
     return (dispatch) => {
@@ -27,7 +45,7 @@ export const fetchSearch = (token,page=1,search={},sort='',limit=10) => {
                 dispatch(setError("Произошла ошибка загрузки шин от старого сайта."));
             }
         }).catch((err)=>{
-            dispatch(setError(err.Error));
+            dispatch(setError("Не возможно сделать запрос. Возможно отсутствует интернет!"));
         });
     }
 }

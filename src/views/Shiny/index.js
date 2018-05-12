@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Grid, Row, Col, Table, MenuItem, DropdownButton, Button, FormGroup, FormControl, InputGroup } from 'react-bootstrap';
+import { Modal, Grid, Row, Col, Table, MenuItem, DropdownButton, Button, FormGroup, FormControl, InputGroup } from 'react-bootstrap';
 // // import config from '../../config';
 import Card from '../../components/Card/Card.jsx';
 import Loading from '../../components/Loading/Loading';
 import Pitstop from '../../models/pitstop';
-import { Checkbox, Table as MatTable, Tooltip,IconButton } from "material-ui";
+import { Checkbox, Table as MatTable, IconButton } from "material-ui";
 
 class Shiny extends Component {
 
@@ -19,6 +19,8 @@ class Shiny extends Component {
             labels,
             search: '',
             openAttr: false,
+            dialog: false,
+            model:{},
             activeLabes: [
                 {key: 'photo', value: true },
                 {key: 'code', value: true },
@@ -61,10 +63,23 @@ class Shiny extends Component {
     }
     lineClick(prop){
         const { pushEdit } = this.props;
-        pushEdit(prop);        
+        pushEdit(prop);
+        window.location.hash = "#/shiny-edit";       
     }
     itemClick(prop,key){        
         console.log("itemClick",prop,key)
+    }
+    
+    close(){this.setState({ dialog: false})}  
+    open(model){this.setState({ dialog: true, model})}
+
+    deleteItem(){
+        const { fetchSearch,deleteItem, token,shiny:{page,search,sort,limit} } = this.props;
+        console.log("deleteItem",this.state.model)
+        deleteItem(token,this.state.model,(res)=>{
+            console.log("deleteItem result",res);
+            fetchSearch(token,page,search,sort,limit)
+        });
     }
          
     navigation(page){
@@ -200,6 +215,13 @@ class Shiny extends Component {
         const { labels, activeLabes } = this.state;
         return (
             <div className="content">
+                <Modal bsSize="small" show={this.state.dialog} onHide={()=>this.close()}>
+                    <Modal.Body><div className="text-danger">Вы действительно хотите удалить запись?</div></Modal.Body>
+                    <Modal.Footer>
+                    <Button bsStyle="danger" onClick={()=>{this.deleteItem();this.close()}}>Да</Button>
+                    <Button bsStyle="primary" onClick={()=>this.close()}>Нет</Button>
+                    </Modal.Footer>
+                </Modal>
                 <Grid fluid>
                     <Row>
                         <Col md={9}>                
@@ -220,7 +242,7 @@ class Shiny extends Component {
                                                             return null;
                                                         })
                                                     }
-                                                    <td colspan={3}></td>
+                                                    <td colSpan={3}></td>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -258,7 +280,7 @@ class Shiny extends Component {
                                                                         </IconButton>
                                                                     </td>
                                                                     <td>
-                                                                        <IconButton><i className="text-danger fa fa-close"></i>
+                                                                        <IconButton onClick={()=>this.open(pit)}><i className="text-danger fa fa-close"></i>
                                                                         </IconButton>
                                                                     </td>
                                                                 </tr>

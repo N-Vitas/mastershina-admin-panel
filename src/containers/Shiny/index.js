@@ -3,9 +3,8 @@ import actions from '../../actions';
 import Shiny from '../../views/Shiny';
 
 const {
-    images: { pushEdit },
     handlers: { setError },
-    shiny: { fetchSearch, startLoad },
+    shiny: { fetchSearch, startLoad, deleteItem, pushEdit },
 } = actions;
 
 export default connect(
@@ -14,9 +13,8 @@ export default connect(
         token: user.token,
     }),
     dispatch => ({
-        getImageList: (token) => {
-            // dispatch(fetchNoImagesList(token));
-            // dispatch(fetchNewNoImagesList(token))
+        deleteItem: (token,model,callback) => {
+            dispatch(deleteItem(token,model,callback));
         },
         startLoad: () => {
             dispatch(startLoad());
@@ -25,8 +23,6 @@ export default connect(
             dispatch(fetchSearch(token,page,search,sort,limit));
         },
         pushEdit: (edit) => dispatch(pushEdit(edit)),
-        // selectedFileImage: (file, imagePreviewUrl) => dispatch(selectedFileImage(file, imagePreviewUrl)),
-        // uploadFile: (file) => dispatch(uploadFile(file)),
         setError: (txt) => dispatch(setError(txt)),
     })
 )(Shiny);
